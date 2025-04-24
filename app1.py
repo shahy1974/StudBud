@@ -49,23 +49,23 @@ def signup():
     }
     return redirect(url_for('login'))  # Redirect to login page
 
-# This is the route to display the form and submit a question (GET and POST)
 @app.route('/ask', methods=['GET', 'POST'])
 def ask():
     if 'username' not in session:
-        return redirect(url_for('login'))  # Redirect to login page if not logged in
-    
+        return redirect(url_for('login'))
+
     if request.method == 'GET':
-        # Show the ask form to the logged-in user
         return render_template('ask.html')
-    
-    # Handle the question submission (POST request)
-    question = request.form.get('question')  # Get the question from the form
-    # Here, you can process the question as needed
-    # Placeholder response - you can modify this with actual logic or API call
+
+    # Handle the question submission from JSON request
+    data = request.get_json()
+    question = data.get("question") if data else None
+
+    if not question:
+        return jsonify({"error": "No question received"}), 400
+
     answer = f"You asked: {question}"
-    
-    return jsonify({"answer": answer})  # Returning the answer as a JSON response
+    return jsonify({"answer": answer})
 
 @app.route('/logout')
 def logout():
