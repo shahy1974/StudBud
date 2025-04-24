@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import requests
 from dotenv import load_dotenv
 from flask import send_from_directory  # For serving static files
 
@@ -57,28 +58,36 @@ def ask():
     if request.method == 'GET':
         return render_template('ask.html')
 
-    data = request.get_json()
-    question = data.get('question')
+    try:
+        data = request.get_json()
+        print("Received JSON:", data)  # Debugging
 
-    headers = {
-        'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
-        'Content-Type': 'application/json'
-    }
+        question = data.get('question')
+        print("Question:", question)  # Debugging
 
-    payload = {
-        "model": "deepseek-chat",  # You can replace this with the exact model you want
-        "messages": [
-            {"role": "user", "content": question}
-        ]
-    }
+        headers = {
+            'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
+            'Content-Type': 'application/json'
+        }
 
-    response = requests.post("https://api.deepseek.com/v1/chat/completions", json=payload, headers=headers)
+        payload = {
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": question}]
+        }
 
-    if response.status_code == 200:
-        ai_answer = response.json()["choices"][0]["message"]["content"]
-        return jsonify({"answer": ai_answer})
-    else:
-        return jsonify({"answer": "Error fetching answer from AI."})
+        response = requests.post("https://api.deepseek.com/v1/chat/completions", headers=headers, json=payload)
+        print("API status:", response.status_code)
+        print("API response:", response.text)
+
+        if response.status_code == 200:
+            ai_answer = response.json()["choices"][0]["message"]["content"]
+            return jsonify({"answer": ai_answer})
+        else:
+            return jsonify({"answer": "API error. Check console logs."}), 500
+
+    except Exception as e:
+        print("Caught server error:", e)
+        return jsonify({"answer": f"Server error: {str(e)}"}), 500
 
 @app.route('/logout')
 def logout():
