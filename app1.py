@@ -57,15 +57,28 @@ def ask():
     if request.method == 'GET':
         return render_template('ask.html')
 
-    # Handle the question submission from JSON request
     data = request.get_json()
-    question = data.get("question") if data else None
+    question = data.get('question')
 
-    if not question:
-        return jsonify({"error": "No question received"}), 400
+    headers = {
+        'Authorization': f'Bearer {DEEPSEEK_API_KEY}',
+        'Content-Type': 'application/json'
+    }
 
-    answer = f"You asked: {question}"
-    return jsonify({"answer": answer})
+    payload = {
+        "model": "deepseek-chat",  # You can replace this with the exact model you want
+        "messages": [
+            {"role": "user", "content": question}
+        ]
+    }
+
+    response = requests.post("https://api.deepseek.com/v1/chat/completions", json=payload, headers=headers)
+
+    if response.status_code == 200:
+        ai_answer = response.json()["choices"][0]["message"]["content"]
+        return jsonify({"answer": ai_answer})
+    else:
+        return jsonify({"answer": "Error fetching answer from AI."})
 
 @app.route('/logout')
 def logout():
