@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 import os
 from dotenv import load_dotenv
-
 
 load_dotenv()
 
@@ -14,8 +13,7 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')  # From .env file
 DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
-users = {}  # Temporary user storage,replace with database in production
-
+users = {}  # Temporary user storage, replace with database in production
 
 @app.route('/')
 def home():
@@ -60,10 +58,9 @@ def signup():
     
     return render_template('signup.html')
 
-
 @app.route('/ask', methods=['GET', 'POST'])
 def ask():
-   if 'username' not in session:
+    if 'username' not in session:
         return redirect(url_for('login'))
 
     if request.method == 'POST':
@@ -87,8 +84,7 @@ def ask():
 
     return render_template('ask.html')
 
-#log out
-
+# Logout route
 @app.route('/logout')
 def logout():
     session.pop('username', None)
