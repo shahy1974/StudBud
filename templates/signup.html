@@ -13,7 +13,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-    }
+     }
 
     .container {
       background-color: white;
@@ -30,7 +30,7 @@
       color: #333;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -71,13 +71,38 @@
   <div class="container">
     <h2>Sign Up</h2>
     <form id="signupForm" action="/signup" method="POST">
-      <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password (min 8 characters)" required />
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="text" name="field" placeholder="Field of Study (optional)" />
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password (min 8 characters)" required />
+      <input type="email" id="email" placeholder="Email" required />
+
       <button type="submit">Sign Up</button>
-      <button type="button" class="back-btn" onclick="window.location.href='/'">Back</button>
+      <button type="button" class="back-btn" onclick="window.location.href='home.html'">Back</button>
     </form>
   </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const response = await fetch('/signup', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              username: document.getElementById('username').value,
+              password: document.getElementById('password').value,
+              email: document.getElementById('email').value
+          })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+          window.location.href = '/login';  // Force redirect to login
+      } else {
+          alert(result.error || "Signup failed");
+      }
+    });
+  </script>
 </body>
 </html>
