@@ -3,10 +3,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 import os
 from dotenv import load_dotenv
+from flask_cors import CORS 
 
 load_dotenv()
 
 app = Flask(__name__, template_folder='templates')
+CORS(app) 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')  # From .env file
 
 # DeepSeek API Config
